@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% block title %}Inicio{% endblock %} {% block content
+%}
+<div class="home-container">
+  <h1>Bienvenido a Salud del Corazón</h1>
+  <p>Diagnóstico y prevención de enfermedades cardíacas en adultos.</p>
+  {% if not session.get('logged_in') %}
+  <div class="auth-buttons">
+    <a href="{{ url_for('login') }}" class="btn btn-secondary"
+      >Iniciar Sesión</a
+    >
+    <a href="{{ url_for('registro') }}" class="btn btn-secondary"
+      >Registrarse</a
+    >
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

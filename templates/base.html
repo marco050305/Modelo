@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salud del Corazón - {% block title %}{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/estilo_base.css') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="container header-container">
+        <div class="logo">
+          <a href="{{ url_for('home') }}">Salud del Corazón</a>
+        </div>
+        <nav>
+          <ul class="nav-links">
+            <li><a href="{{ url_for('home') }}">Inicio</a></li>
+            {% if session.get('logged_in') %} {% if session.get('user_type') ==
+            'medico' %}
+            <li><a href="{{ url_for('admin_panel') }}">Panel Admin</a></li>
+            {% else %}
+            <li><a href="{{ url_for('diagnostico') }}">Diagnóstico</a></li>
+            {% endif %} {% endif %}
+
+            <li>
+              {% if session.get('logged_in') %}
+              <div class="user-menu" id="userMenu">
+                <button class="user-menu-btn" id="userMenuBtn">
+                  <span style="margin-right: 8px">👤</span>
+                  {{ session.get('username') }}
+                  <span style="margin-left: 4px">▼</span>
+                </button>
+                <div class="user-dropdown" id="userDropdown">
+                  <a href="{{ url_for('configuracion') }}">Configuración</a>
+                  <a href="{{ url_for('logout') }}">Cerrar Sesión</a>
+                </div>
+              </div>
+              {% else %}
+              <a href="{{ url_for('login') }}" class="login-btn"
+                >Iniciar Sesión</a
+              >
+              <a href="{{ url_for('registro') }}" class="register-btn"
+                >Registrarse</a
+              >
+              {% endif %}
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container main-content">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div class="message {{ category }}">{{ message }}</div>
+      {% endfor %} {% endif %} {% endwith %} {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+      <div class="container footer-content">
+        <div class="footer-info">
+          <h3>Salud del Corazón</h3>
+          <p>Diagnóstico y Prevención de Enfermedades Cardíacas en Adultos</p>
+        </div>
+        <div class="footer-contact">
+          <p>UNFV-FIIS</p>
+          <p>© 2025 Todos los derechos reservados</p>
+        </div>
+      </div>
+    </footer>
+    <script>
+      // Despliega el menú de usuario al hacer clic
+      document.addEventListener("DOMContentLoaded", function () {
+        var userMenuBtn = document.getElementById("userMenuBtn");
+        var userMenu = document.getElementById("userMenu");
+        if (userMenuBtn && userMenu) {
+          userMenuBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            userMenu.classList.toggle("open");
+          });
+          document.addEventListener("click", function () {
+            userMenu.classList.remove("open");
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

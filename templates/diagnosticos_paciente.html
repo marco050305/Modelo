@@ -1,0 +1,47 @@
+{% extends "base.html" %} {% block title %}Diagnósticos de Paciente{% endblock
+%} {% block content %}
+<h2>Historial de Diagnósticos de {{ paciente[2] }} {{ paciente[3] }}</h2>
+<p><strong>Usuario:</strong> {{ paciente[8] }}</p>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Fecha</th>
+      <th>Edad</th>
+      <th>Género</th>
+      <th>Presión Sistólica</th>
+      <th>Presión Diastólica</th>
+      <th>Colesterol</th>
+      <th>Glucosa</th>
+      <th>Fuma</th>
+      <th>Alcohol</th>
+      <th>Actividad</th>
+      <th>IMC</th>
+      <th>Riesgo</th>
+      <th>Confianza</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for d in diagnosticos %}
+    <tr>
+      <td>{{ d[13] }}</td>
+      <td>{{ d[1] }}</td>
+      <td>{{ d[2] }}</td>
+      <td>{{ d[3] }}</td>
+      <td>{{ d[4] }}</td>
+      <td>{{ d[5] }}</td>
+      <td>{{ d[6] }}</td>
+      <td>{{ d[7] }}</td>
+      <td>{{ d[8] }}</td>
+      <td>{{ d[9] }}</td>
+      <td>{{ d[10] }}</td>
+      <td>
+        {% if d[11] == 0 %}Bajo{% elif d[11] == 1 %}Medio{% else %}Alto{% endif
+        %}
+      </td>
+      <td>{{ (d[12]*100)|round(2) }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Volver</a>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %} {% block title %}Panel Admin{% endblock %} {% block
+content %}
+<h2>Panel de Administración</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Usuario</th>
+      <th>Nombre</th>
+      <th>Apellido</th>
+      <th>Total Diagnósticos</th>
+      <th>Último Diagnóstico</th>
+      <th>Ver Diagnósticos</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for paciente in pacientes %}
+    <tr>
+      <td>{{ paciente[1] }}</td>
+      <td>{{ paciente[2] }}</td>
+      <td>{{ paciente[3] }}</td>
+      <td>{{ paciente[4] }}</td>
+      <td>{{ paciente[5] if paciente[5] else 'N/A' }}</td>
+      <td>
+        <a
+          href="{{ url_for('ver_diagnosticos', paciente_id=paciente[0]) }}"
+          class="btn btn-sm btn-primary"
+          >Ver</a
+        >
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends "base.html" %} {% block title %}Diagnóstico{% endblock %} {% block
+content %}
+<h2>Diagnóstico de Enfermedad Cardíaca</h2>
+<div
+  id="resultado"
+  style="display: none; margin: 20px 0; padding: 15px; border-radius: 5px"
+></div>
+
+<form id="formDiagnostico" method="POST">
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="edad">Edad:</label>
+      <input
+        type="number"
+        class="form-control"
+        id="edad"
+        name="edad"
+        min="18"
+        max="120"
+        required
+      />
+    </div>
+    <div class="form-group col-md-6">
+      <label for="genero">Género:</label>
+      <select class="form-control" id="genero" name="genero" required>
+        <option value="Masculino">Masculino</option>
+        <option value="Femenino">Femenino</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="ps">Presión arterial sistólica (PS):</label>
+      <input
+        type="number"
+        class="form-control"
+        id="ps"
+        name="ps"
+        min="70"
+        max="250"
+        required
+      />
+    </div>
+    <div class="form-group col-md-6">
+      <label for="pd">Presión arterial diastólica (PD):</label>
+      <input
+        type="number"
+        class="form-control"
+        id="pd"
+        name="pd"
+        min="40"
+        max="150"
+        required
+      />
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="colesterol">Colesterol (mg/dL):</label>
+      <input
+        type="number"
+        step="0.1"
+        class="form-control"
+        id="colesterol"
+        name="colesterol"
+        min="100"
+        max="400"
+        required
+      />
+    </div>
+    <div class="form-group col-md-6">
+      <label for="glucosa">Glucosa (mg/dL):</label>
+      <input
+        type="number"
+        step="0.1"
+        class="form-control"
+        id="glucosa"
+        name="glucosa"
+        min="50"
+        max="300"
+        required
+      />
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <label for="fuma">¿Fuma?</label>
+      <select class="form-control" id="fuma" name="fuma" required>
+        <option value="s">Sí</option>
+        <option value="n">No</option>
+      </select>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="alcohol">¿Consume alcohol?</label>
+      <select class="form-control" id="alcohol" name="alcohol" required>
+        <option value="s">Sí</option>
+        <option value="n">No</option>
+      </select>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="actividad">Actividad física:</label>
+      <select class="form-control" id="actividad" name="actividad" required>
+        <option value="no">Sedentario</option>
+        <option value="1-2">1-2 veces/semana</option>
+        <option value="3+">3+ veces/semana</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="peso">Peso (kg):</label>
+      <input
+        type="number"
+        step="0.1"
+        class="form-control"
+        id="peso"
+        name="peso"
+        min="30"
+        max="200"
+        required
+      />
+    </div>
+    <div class="form-group col-md-6">
+      <label for="estatura">Estatura (cm):</label>
+      <input
+        type="number"
+        class="form-control"
+        id="estatura"
+        name="estatura"
+        min="100"
+        max="250"
+        required
+      />
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Realizar Diagnóstico</button>
+</form>
+
+<script>
+  document
+    .getElementById("formDiagnostico")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      fetch("/diagnostico", {
+        method: "POST",
+        body: new FormData(this),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const resultadoDiv = document.getElementById("resultado");
+          resultadoDiv.style.display = "block";
+
+          if (data.error) {
+            resultadoDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error}</div>`;
+          } else {
+            let alertClass = "alert-success";
+            if (data.riesgo === 1) alertClass = "alert-warning";
+            if (data.riesgo === 2) alertClass = "alert-danger";
+
+            resultadoDiv.innerHTML = `
+                <div class="alert ${alertClass}">
+                    <h4>Resultado del diagnóstico:</h4>
+                    <p>${data.descripcion}</p>
+                    <p>Confianza: ${data.confianza}%</p>
+                </div>
+            `;
+          }
+        })
+        .catch((error) => {
+          document.getElementById("resultado").innerHTML = `
+            <div class="alert alert-danger">Error al procesar la solicitud</div>
+        `;
+        });
+    });
+</script>
+{% endblock %}
