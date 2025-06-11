@@ -11,7 +11,7 @@ app.secret_key = 'SECRET_KEY'
 modelo = tf.keras.models.load_model('modelo_entrenado_final.h5')
 
 def get_db_connection():
-    return psycopg2.connect('postgresql://db_unfv_ver5_user:rTxeXCWafkztYkNnhrRPZCnBIqATGP1c@dpg-d13fbvk9c44c7399ca1g-a.oregon-postgres.render.com/db_unfv_ver5')
+    return psycopg2.connect(os.getenv('DATABASE_URL'))
 
 @app.route('/')
 def home():
