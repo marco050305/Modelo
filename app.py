@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session, flash
 import numpy as np
 import tensorflow as tf
+import os
 import psycopg2
 from datetime import datetime
 
