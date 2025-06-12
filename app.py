@@ -9,12 +9,13 @@ app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
 
 
-modelo = tf.keras.models.load_model('modeloDEC.h5')
-model = tf.keras.models.load_model('modeloDEC') 
+# Cargar el modelo exportado como carpeta (SavedModel)
+modelo = tf.keras.models.load_model('modelo/guillegod')
+
 
 def get_db_connection():
-    return psycopg2.connect(os.getenv('DATABASE_URL'))
-    #return psycopg2.connect('postgresql://db_unfv_ver5_user:rTxeXCWafkztYkNnhrRPZCnBIqATGP1c@dpg-d13fbvk9c44c7399ca1g-a.oregon-postgres.render.com/db_unfv_ver5')
+#    return psycopg2.connect(os.getenv('DATABASE_URL'))
+    return psycopg2.connect('postgresql://db_unfv_ver5_user:rTxeXCWafkztYkNnhrRPZCnBIqATGP1c@dpg-d13fbvk9c44c7399ca1g-a.oregon-postgres.render.com/db_unfv_ver5')
 
 @app.route('/')
 def home():
@@ -44,7 +45,6 @@ def login():
             session['user_type'] = user[2]
             flash('Inicio de sesión exitoso', 'success')
             
-            # Redirigir según tipo de usuario
             if user[2] == 'medico':
                 return redirect(url_for('admin_panel'))
             else:
@@ -54,7 +54,6 @@ def login():
     
     return render_template('login.html')
 
-# Ruta de registro mejorada
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
@@ -71,7 +70,6 @@ def registro():
             conn = get_db_connection()
             cur = conn.cursor()
             
-            # Insertar usuario
             cur.execute("""
                 INSERT INTO usuarios (username, password)
                 VALUES (%s, %s)
@@ -80,7 +78,6 @@ def registro():
             
             usuario_id = cur.fetchone()[0]
             
-            # Insertar paciente con todos los datos
             cur.execute("""
                 INSERT INTO pacientes (
                     usuario_id, nombre, apellido, fecha_nacimiento, 
@@ -119,7 +116,6 @@ def diagnostico():
     
     if request.method == 'POST':
         try:
-            # Obtener datos del formulario (todos los campos que necesitas)
             edad = int(request.form['edad'])
             genero = request.form['genero']
             ps = int(request.form['ps'])
@@ -132,10 +128,8 @@ def diagnostico():
             peso = float(request.form['peso'])
             estatura = int(request.form['estatura'])
 
-            # Calcular IMC (igual que en tu código)
             imc = peso / ((estatura / 100) ** 2)
 
-            # Transformar a vectores de entrada (EXACTAMENTE IGUAL QUE TU VERSIÓN)
             entrada = [
                 0 if edad < 45 else 1 if edad <= 59 else 2,
                 0 if 'femenino' in genero.lower() else 1,
@@ -149,20 +143,15 @@ def diagnostico():
                 1 if imc == 0 else 1 if imc < 18.5 else 0 if imc < 25 else 1 if imc < 30 else 2
             ]
 
-            # Convertir a array NumPy
             input_array = np.array([entrada], dtype=np.float32)
 
-            # Predicción (igual que tu versión)
             pred = modelo.predict(input_array)[0]
 
-            # Obtener clase y confianza
             riesgo = int(np.argmax(pred))
             confianza = float(np.max(pred))
 
-            # Mapa de descripción
             mapa_riesgo = {0: "Bajo", 1: "Medio", 2: "Alto"}
 
-            # Guardar en base de datos (versión simple)
             try:
                 conn = get_db_connection()
                 cur = conn.cursor()
@@ -182,7 +171,6 @@ def diagnostico():
                 cur.close()
                 conn.close()
 
-            # Mostrar resultados
             return jsonify({
                 'riesgo': riesgo,
                 'confianza': round(confianza * 100, 2),
@@ -208,7 +196,6 @@ def admin_panel():
     conn = get_db_connection()
     cur = conn.cursor()
     
-    # Obtener todos los pacientes con sus diagnósticos
     cur.execute("""
         SELECT p.id, u.username, p.nombre, p.apellido, 
                COUNT(d.id) as total_diagnosticos,
@@ -226,7 +213,6 @@ def admin_panel():
     
     return render_template('admin_panel.html', pacientes=pacientes)
 
-# Ruta para ver diagnósticos de un paciente específico
 @app.route('/admin/diagnosticos/<int:paciente_id>')
 def ver_diagnosticos(paciente_id):
     if not session.get('logged_in') or session.get('user_type') != 'medico':
@@ -236,7 +222,6 @@ def ver_diagnosticos(paciente_id):
     conn = get_db_connection()
     cur = conn.cursor()
     
-    # Obtener información del paciente
     cur.execute("""
         SELECT p.*, u.username 
         FROM pacientes p
@@ -245,7 +230,6 @@ def ver_diagnosticos(paciente_id):
     """, (paciente_id,))
     paciente = cur.fetchone()
     
-    # Obtener sus diagnósticos
     cur.execute("""
         SELECT d.*, u.username as medico_nombre
         FROM diagnosticos d
